@@ -1,5 +1,9 @@
 name: Release for Android
 
+# 给内置 GITHUB_TOKEN 明确写权限，确保能创建 Release
+permissions:
+  contents: write
+
 on:
   workflow_dispatch:
   push:
@@ -51,5 +55,6 @@ jobs:
             build/app/outputs/flutter-apk/app-arm64-v8a-release.apk,
             build/app/outputs/flutter-apk/app-x86_64-release.apk
           prerelease: false
-          tag_name: ${{ github.event.inputs.tag_name }}
-          token: ${{ secrets.RELEASE_TOKEN }}
+          # 优先使用 workflow_dispatch 输入的 tag_name，若为空则使用 push 触发时的 ref 名称（即 tag）
+          tag_name: ${{ github.event.inputs.tag_name || github.ref_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
