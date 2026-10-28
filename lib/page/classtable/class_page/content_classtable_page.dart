@@ -680,12 +680,9 @@ class _ContentClassTablePageState extends State<ContentClassTablePage> {
         title: Text(context.t.classtable.pageTitle),
         leading: BackButton(onPressed: () => Navigator.of(context).pop()),
         actions: [
-          /// What the table is busy with, on the side where the error button
-          /// already opens the detail.
-          ClassTableStatusHint(
-            loadingSources: state.loadingSources,
-            cacheSources: state.cacheSources,
-          ),
+          /// Whether something is still being fetched, on the side where the
+          /// error button already opens the detail.
+          ClassTableStatusHint(loadingSources: state.loadingSources),
           if (hasError)
             IconButton(
               onPressed: _showLoadErrorDialog,

@@ -7,32 +7,20 @@ import 'package:material_ui/material_ui.dart';
 import 'package:watermeter/page/classtable/classtable_state.dart';
 import 'package:watermeter/generated/translations.g.dart';
 
-/// What the classtable is busy with, as two marks in the app bar's actions.
-///
-/// The spinner is what is being fetched right now; [Icons.sync_problem] is what
-/// the table on screen is showing out of the cache. Naming the sources cost the
-/// app bar a row of its own, so they are left to the tooltips and to the error
-/// button beside them.
+/// A loop beside the error button while a source is being fetched, and nothing
+/// otherwise. Which sources came from the cache is the error dialog's business.
 class ClassTableStatusHint extends StatelessWidget {
   final List<ClassTableStatusSource> loadingSources;
-  final List<ClassTableStatusSource> cacheSources;
 
-  const ClassTableStatusHint({
-    super.key,
-    required this.loadingSources,
-    required this.cacheSources,
-  });
+  const ClassTableStatusHint({super.key, required this.loadingSources});
 
-  /// The size the app bar draws the buttons beside the marks at.
+  /// The size the app bar draws the buttons beside the mark at.
   static const double _iconSize = 24;
 
   /// Smaller than [_iconSize]: the indicator draws a little wider than its box.
   static const double _spinnerSize = 14;
 
   static const double _spinnerStroke = 2.5;
-
-  /// The room between the two marks.
-  static const double _gap = 6;
 
   String _sourceLabel(BuildContext context, ClassTableStatusSource source) =>
       switch (source) {
@@ -52,40 +40,33 @@ class ClassTableStatusHint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (loadingSources.isEmpty && cacheSources.isEmpty) {
+    if (loadingSources.isEmpty) {
       return const SizedBox.shrink();
     }
 
-    /// Quieter than the buttons beside them: these are notes, not actions.
+    /// Quieter than the buttons beside it: this is a note, not an action.
     final color = Theme.of(context).colorScheme.onSurfaceVariant;
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (loadingSources.isNotEmpty)
-          Tooltip(
-            message: context.t.classtable.statusBanner.loading(
-              sources: _joinSources(context, loadingSources),
-            ),
-            child: SizedBox(
-              width: _spinnerSize,
-              height: _spinnerSize,
-              child: CircularProgressIndicator(
-                strokeWidth: _spinnerStroke,
-                color: color,
-              ),
+    /// One size whatever the loop is showing, so the buttons beside it do not
+    /// shift from frame to frame.
+    return Tooltip(
+      message: context.t.classtable.statusBanner.loading(
+        sources: _joinSources(context, loadingSources),
+      ),
+      child: SizedBox(
+        width: _iconSize,
+        height: _iconSize,
+        child: Center(
+          child: SizedBox(
+            width: _spinnerSize,
+            height: _spinnerSize,
+            child: CircularProgressIndicator(
+              strokeWidth: _spinnerStroke,
+              color: color,
             ),
           ),
-        if (loadingSources.isNotEmpty && cacheSources.isNotEmpty)
-          const SizedBox(width: _gap),
-        if (cacheSources.isNotEmpty)
-          Tooltip(
-            message: context.t.classtable.statusBanner.cache(
-              sources: _joinSources(context, cacheSources),
-            ),
-            child: Icon(Icons.sync_problem, size: _iconSize, color: color),
-          ),
-      ],
+        ),
+      ),
     );
   }
 }
